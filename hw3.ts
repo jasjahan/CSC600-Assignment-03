@@ -347,6 +347,39 @@ export class Tree<T> {
              return new Tree(f(this.contents), undefined, undefined);
           }
     }
+    
+    public inserttoleftmost(midtree: Tree<T>): Tree<T> {
+        let newleft;
+        if(this.left !== undefined) {
+            newleft = this.left.inserttoleftmost(midtree);
+        } else {
+            newleft = midtree;
+        }
+        
+        return new Tree(this.contents, newleft, this.right);
+          
+    }
+    
+    public toTree2(): Tree<T> {
+        
+          if (this.left !== undefined && this.right !== undefined){
+              
+             return new Tree(this.contents, this.left.toTree2(), this.right.toTree2());
+
+          } else if (this.left !== undefined){
+
+             return new Tree(this.contents, this.left.toTree2(), undefined);
+
+          } else if (this.right !== undefined){
+
+             return new Tree(this.contents, undefined, this.right.toTree2());
+
+          } else {
+
+             return new Tree(this.contents, undefined, undefined);
+
+          }       
+    }
 }
 
 /* ----------------------------------------------------- **
@@ -490,8 +523,28 @@ export class Tree3<T> extends Tree<T> {
                2 
     ** ----------------------------------------------------- */
     public toTree2(): Tree<T> {
-        // TODO: Implement me
-        throw Error("TODO");
+        let newright;
+        let newmid;
+        let newleft;
+        
+        if(this.right !== undefined){
+            newright = this.right.toTree2();
+        }
+        
+        if (this.middle !== undefined){
+            newmid = this.middle.toTree2();
+        }
+        
+        if (this.left !== undefined){
+            newleft = this.left.toTree2();
+        }
+        
+        if(newleft === undefined){
+            newleft = newmid;
+        } else if(newmid !== undefined) {
+            newleft = newmid.inserttoleftmost(newleft);
+        } 
+        return new Tree(this.contents, newleft, newright);
     }
 }
 
