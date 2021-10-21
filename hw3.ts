@@ -124,9 +124,9 @@ type StrangeNumber = {
 }
 
 export function newStrangeNumber(): StrangeNumber {
-     let count = 1;
+   let count : number = 1;
    
-   function _isEven(n: number): boolean{
+   function _isEven(this: StrangeNumber, n: number): boolean{
        if (n < 0) {
             this.count = this.count*2 + 1;
             return !this.isOdd(-n);
@@ -138,7 +138,7 @@ export function newStrangeNumber(): StrangeNumber {
         }
    }
    
-   function _isOdd(n: number): boolean{
+   function _isOdd(this: StrangeNumber, n: number): boolean{
        if (n < 0) {
             this.count += 3;
             return !this.isEven(-n);
@@ -198,7 +198,7 @@ export class StrangeNumber2Class extends StrangeNumberClass {
 
 export function newStrangeNumber2(): StrangeNumber {
      let innerFunction = newStrangeNumber();
-   function _isOdd(n: number): boolean {
+   function _isOdd(this: StrangeNumber, n: number): boolean {
         if (n <= 0) {
             return !this.isEven(-n);
         } else {
@@ -461,16 +461,16 @@ export class Tree3<T> extends Tree<T> {
                    "a2" "a1" "a4"
     ** ----------------------------------------------------- */
     public map<U>(f: (arg: T) => U): Tree<U> {
-        const a = new Tree(this.contents, this.left, this.right);
-        if (a.left !== undefined && a.right !== undefined && this.middle !== undefined){
+        
+        if (this.left !== undefined && this.right !== undefined && this.middle !== undefined){
 
              return new Tree3(f(this.contents), this.left.map(f), this.middle.map(f), this.right.map(f));
 
-        } else if (a.left !== undefined){
+        } else if (this.left !== undefined){
 
              return new Tree3(f(this.contents), this.left.map(f), undefined, undefined);
 
-        } else if (a.right !== undefined){
+        } else if (this.right !== undefined){
 
              return new Tree3(f(this.contents), undefined,undefined, this.right.map(f));
 
@@ -805,13 +805,33 @@ export class WebEntryJSONValue extends ObjJSONValue {
     }
 
     public allPathsSatisfyingPredicate(predicate: (authority: string) => boolean): string[] {
-        // TODO: implement me
-        throw Error("TODO");
+         let acc : string[] = [];      
+        const jsonObj = this.obj as { authority: StringJSONValue, links: ArrJSONValue};        
+        if(predicate(jsonObj.authority.str)){                                      
+                 acc = acc.concat("/");
+        }
+        
+        if(jsonObj.links !== undefined){
+            
+            acc = acc.concat(
+                jsonObj.links.allPathsSatisfyingPredicate(predicate)
+            );
+            
+        }
+        
+        return acc;
     }
 
     public fillInMissingPath(): JSONValue {
-        // TODO: implement me
-        throw Error("TODO");
+        let jsonObj = this.obj as { authority: StringJSONValue, path: StringJSONValue, links: ArrJSONValue};   
+       if(jsonObj.links !== undefined){
+           jsonObj.links = jsonObj.links.fillInMissingPath() as ArrJSONValue;
+       }  
+       if (jsonObj.path === undefined){                             
+            jsonObj.path = new StringJSONValue("/");
+       }
+       
+       return new ObjJSONValue(jsonObj);
     }
 }
 
@@ -825,13 +845,33 @@ export class WebEntryPathJSONValue extends ObjJSONValue {
     }
 
     public allPathsSatisfyingPredicate(predicate: (authority: string) => boolean): string[] {
-        // TODO: implement me
-        throw Error("TODO");
+        let acc : string[] = [];      
+        const jsonObj = this.obj as { authority: StringJSONValue, path: StringJSONValue, links: ArrJSONValue};        
+        if(predicate(jsonObj.authority.str)){                                          
+                acc = acc.concat(jsonObj.path.str);
+        }
+        
+        if(jsonObj.links !== undefined){
+            
+            acc = acc.concat(
+                jsonObj.links.allPathsSatisfyingPredicate(predicate)
+            );
+            
+        }
+        
+        return acc;
     }
 
     public fillInMissingPath(): JSONValue {
-        // TODO: implement me
-        throw Error("TODO");
+        let jsonObj = this.obj as { authority: StringJSONValue, path: StringJSONValue, links: ArrJSONValue};   
+       if(jsonObj.links !== undefined){
+           jsonObj.links = jsonObj.links.fillInMissingPath() as ArrJSONValue;
+       }  
+       if (jsonObj.path === undefined){                             
+            jsonObj.path = new StringJSONValue("/");
+       }
+       
+       return new ObjJSONValue(jsonObj);
     }
 }
 
